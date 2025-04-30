@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/card";
 import {
   BarChart3,
-  PieChart,
   LineChart as LineChartIcon, // Rename to avoid conflict with Recharts component
   Download,
   Filter,
@@ -65,7 +64,7 @@ import {
   Tooltip as RechartsTooltip, // Rename to avoid conflict
   Legend,
   Cell, // For Pie chart colors
-} from 'recharts';
+} from "recharts";
 import {
   Tooltip as ShadcnTooltip,
   TooltipContent,
@@ -76,9 +75,7 @@ import {
 // Wrapper component to ensure TooltipProvider is available
 const Tooltip = ({ children }: { children: React.ReactNode }) => (
   <TooltipProvider delayDuration={100}>
-    <ShadcnTooltip>
-      {children}
-    </ShadcnTooltip>
+    <ShadcnTooltip>{children}</ShadcnTooltip>
   </TooltipProvider>
 );
 
@@ -197,36 +194,60 @@ export default function DataAnalytics() {
 
     switch (selectedMetric) {
       case "engagement":
-        return renderLineChart(engagementData, ["自社", "業界平均"], ["#3b82f6", "#6b7280"]);
+        return renderLineChart(
+          engagementData,
+          ["自社", "業界平均"],
+          ["#3b82f6", "#6b7280"]
+        );
       case "leadership":
-        return renderBarChart(leadershipData, ["自社", "業界平均"], ["#3b82f6", "#6b7280"]);
+        return renderBarChart(
+          leadershipData,
+          ["自社", "業界平均"],
+          ["#3b82f6", "#6b7280"]
+        );
       case "department":
-        if (selectedChart === 'pie') {
+        if (selectedChart === "pie") {
           return renderPieChart(departmentData);
         } else {
           // Show department scores as a bar chart if not pie
-          return renderBarChart(departmentData.map(d => ({ name: d.name, スコア: d.value })), ["スコア"], ["#3b82f6"]);
+          return renderBarChart(
+            departmentData.map((d) => ({ name: d.name, スコア: d.value })),
+            ["スコア"],
+            ["#3b82f6"]
+          );
         }
       case "skills":
         return renderRadarChart(skillsData);
       case "trend":
-        return renderLineChart(trendData, ["エンゲージメント", "リーダーシップ", "スキル評価"], ["#3b82f6", "#10b981", "#f59e0b"]);
+        return renderLineChart(
+          trendData,
+          ["エンゲージメント", "リーダーシップ", "スキル評価"],
+          ["#3b82f6", "#10b981", "#f59e0b"]
+        );
       default:
         return <p>選択された指標のチャートは利用できません。</p>;
     }
   };
 
-  const renderLineChart = (data: any[], dataKeys: string[], colors: string[]) => (
+  const renderLineChart = (
+    data: any[],
+    dataKeys: string[],
+    colors: string[]
+  ) => (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
         <YAxis stroke="#6b7280" fontSize={12} />
         <RechartsTooltip
-          contentStyle={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}
-          labelStyle={{ color: '#1f2937', fontWeight: 'bold' }}
+          contentStyle={{
+            backgroundColor: "white",
+            border: "1px solid #e5e7eb",
+            borderRadius: "0.375rem",
+          }}
+          labelStyle={{ color: "#1f2937", fontWeight: "bold" }}
         />
-        <Legend wrapperStyle={{ fontSize: '12px' }} />
+        <Legend wrapperStyle={{ fontSize: "12px" }} />
         {dataKeys.map((key, index) => (
           <Line
             key={key}
@@ -242,19 +263,32 @@ export default function DataAnalytics() {
     </ResponsiveContainer>
   );
 
-  const renderBarChart = (data: any[], dataKeys: string[], colors: string[]) => (
+  const renderBarChart = (
+    data: any[],
+    dataKeys: string[],
+    colors: string[]
+  ) => (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
         <YAxis stroke="#6b7280" fontSize={12} />
         <RechartsTooltip
-          contentStyle={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}
-          labelStyle={{ color: '#1f2937', fontWeight: 'bold' }}
+          contentStyle={{
+            backgroundColor: "white",
+            border: "1px solid #e5e7eb",
+            borderRadius: "0.375rem",
+          }}
+          labelStyle={{ color: "#1f2937", fontWeight: "bold" }}
         />
-        <Legend wrapperStyle={{ fontSize: '12px' }} />
+        <Legend wrapperStyle={{ fontSize: "12px" }} />
         {dataKeys.map((key, index) => (
-          <Bar key={key} dataKey={key} fill={colors[index % colors.length]} radius={[4, 4, 0, 0]} />
+          <Bar
+            key={key}
+            dataKey={key}
+            fill={colors[index % colors.length]}
+            radius={[4, 4, 0, 0]}
+          />
         ))}
       </BarChart>
     </ResponsiveContainer>
@@ -275,28 +309,61 @@ export default function DataAnalytics() {
           nameKey="name"
         >
           {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+            <Cell
+              key={`cell-${index}`}
+              fill={PIE_COLORS[index % PIE_COLORS.length]}
+            />
           ))}
         </Pie>
         <RechartsTooltip
-          contentStyle={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}
+          contentStyle={{
+            backgroundColor: "white",
+            border: "1px solid #e5e7eb",
+            borderRadius: "0.375rem",
+          }}
         />
-        <Legend wrapperStyle={{ fontSize: '12px' }} layout="vertical" verticalAlign="middle" align="right" />
+        <Legend
+          wrapperStyle={{ fontSize: "12px" }}
+          layout="vertical"
+          verticalAlign="middle"
+          align="right"
+        />
       </PieChart>
     </ResponsiveContainer>
   );
 
- const renderRadarChart = (data: any[]) => (
+  const renderRadarChart = (data: any[]) => (
     <ResponsiveContainer width="100%" height="100%">
       <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
         <PolarGrid stroke="#e5e7eb" />
         <PolarAngleAxis dataKey="subject" stroke="#6b7280" fontSize={12} />
-        <PolarRadiusAxis angle={30} domain={[0, 5]} stroke="#6b7280" fontSize={10} />
-        <Radar name="自社" dataKey="自社" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
-        <Radar name="業界平均" dataKey="業界平均" stroke="#6b7280" fill="#6b7280" fillOpacity={0.6} />
-        <Legend wrapperStyle={{ fontSize: '12px' }} />
+        <PolarRadiusAxis
+          angle={30}
+          domain={[0, 5]}
+          stroke="#6b7280"
+          fontSize={10}
+        />
+        <Radar
+          name="自社"
+          dataKey="自社"
+          stroke="#3b82f6"
+          fill="#3b82f6"
+          fillOpacity={0.6}
+        />
+        <Radar
+          name="業界平均"
+          dataKey="業界平均"
+          stroke="#6b7280"
+          fill="#6b7280"
+          fillOpacity={0.6}
+        />
+        <Legend wrapperStyle={{ fontSize: "12px" }} />
         <RechartsTooltip
-          contentStyle={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}
+          contentStyle={{
+            backgroundColor: "white",
+            border: "1px solid #e5e7eb",
+            borderRadius: "0.375rem",
+          }}
         />
       </RadarChart>
     </ResponsiveContainer>
@@ -309,31 +376,32 @@ export default function DataAnalytics() {
     console.log(`Exporting/Sharing as ${format}...`); // Mock action
     toast({
       title: "エクスポート/共有",
-      description: `${format === 'email' ? '共有' : 'エクスポート'}処理を開始します。(モック)`,
+      description: `${
+        format === "email" ? "共有" : "エクスポート"
+      }処理を開始します。(モック)`,
     });
   };
 
   // Update selected chart based on metric
   useEffect(() => {
     switch (selectedMetric) {
-      case 'skills':
-        setSelectedChart('radar');
+      case "skills":
+        setSelectedChart("radar");
         break;
-      case 'trend':
-      case 'engagement':
-        setSelectedChart('line');
+      case "trend":
+      case "engagement":
+        setSelectedChart("line");
         break;
-      case 'department':
-        setSelectedChart('pie'); // Default department view to Pie
+      case "department":
+        setSelectedChart("pie"); // Default department view to Pie
         break;
-      case 'leadership':
+      case "leadership":
       default:
-        setSelectedChart('bar');
+        setSelectedChart("bar");
         break;
     }
   }, [selectedMetric]);
   // --- End Event Handlers ---
-
 
   return (
     <div className="p-6 lg:p-8">
@@ -385,11 +453,13 @@ export default function DataAnalytics() {
                   <Share2 className="mr-2 h-4 w-4" />
                   メールで共有
                 </DropdownMenuItem>
-                 <DropdownMenuSeparator />
-                 <DropdownMenuItem disabled> {/* Mock Placeholder */}
-                   <Info className="mr-2 h-4 w-4" />
-                   定期レポート設定 (未実装)
-                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem disabled>
+                  {" "}
+                  {/* Mock Placeholder */}
+                  <Info className="mr-2 h-4 w-4" />
+                  定期レポート設定 (未実装)
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -417,101 +487,130 @@ export default function DataAnalytics() {
                         onValueChange={setSelectedDepartment}
                         name="filter-department"
                       >
-                        <SelectTrigger id="filter-department" className="col-span-2 h-8">
+                        <SelectTrigger
+                          id="filter-department"
+                          className="col-span-2 h-8"
+                        >
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">全部署</SelectItem>
                           <SelectItem value="hr">人事部</SelectItem>
                           <SelectItem value="sales">営業部</SelectItem>
-                          <SelectItem value="marketing">マーケティング部</SelectItem>
+                          <SelectItem value="marketing">
+                            マーケティング部
+                          </SelectItem>
                           <SelectItem value="engineering">開発部</SelectItem>
-                          <SelectItem value="support">カスタマーサポート部</SelectItem>
+                          <SelectItem value="support">
+                            カスタマーサポート部
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                     <div className="grid grid-cols-3 items-center gap-4">
-                       <Label htmlFor="filter-period">期間</Label>
-                       <Select
-                         value={selectedPeriod}
-                         onValueChange={setSelectedPeriod}
-                         name="filter-period"
-                       >
-                         <SelectTrigger id="filter-period" className="col-span-2 h-8">
-                           <SelectValue />
-                         </SelectTrigger>
-                         <SelectContent>
-                           <SelectItem value="last_3_months">過去3ヶ月</SelectItem>
-                           <SelectItem value="last_6_months">過去6ヶ月</SelectItem>
-                           <SelectItem value="last_year">過去1年</SelectItem>
-                           <SelectItem value="last_2_years">過去2年</SelectItem>
-                         </SelectContent>
-                       </Select>
-                     </div>
-                     {/* Add more filters like Role, Age Group if needed */}
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-period">期間</Label>
+                      <Select
+                        value={selectedPeriod}
+                        onValueChange={setSelectedPeriod}
+                        name="filter-period"
+                      >
+                        <SelectTrigger
+                          id="filter-period"
+                          className="col-span-2 h-8"
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="last_3_months">
+                            過去3ヶ月
+                          </SelectItem>
+                          <SelectItem value="last_6_months">
+                            過去6ヶ月
+                          </SelectItem>
+                          <SelectItem value="last_year">過去1年</SelectItem>
+                          <SelectItem value="last_2_years">過去2年</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* Add more filters like Role, Age Group if needed */}
                   </div>
-                   <div className="space-y-2">
-                     <h4 className="font-medium leading-none">比較対象</h4>
-                     <RadioGroup
-                       value={selectedCompareType}
-                       onValueChange={setSelectedCompareType}
-                       className="mt-2"
-                     >
-                       <div className="flex items-center space-x-2">
-                         <RadioGroupItem value="department" id="r-department" />
-                         <Label htmlFor="r-department">部署間比較</Label>
-                       </div>
-                       <div className="flex items-center space-x-2">
-                         <RadioGroupItem value="industry" id="r-industry" />
-                         <Label htmlFor="r-industry">業界平均比較</Label>
-                       </div>
-                       <div className="flex items-center space-x-2">
-                         <RadioGroupItem value="historical" id="r-historical" />
-                         <Label htmlFor="r-historical">過去データ比較</Label>
-                       </div>
-                     </RadioGroup>
-                   </div>
-                   <div className="space-y-2">
-                     <h4 className="font-medium leading-none">グラフタイプ</h4>
-                     <div className="flex gap-2 mt-2">
-                       <Button
-                         variant={selectedChart === "bar" ? "secondary" : "outline"}
-                         size="icon"
-                         onClick={() => setSelectedChart("bar")}
-                         title="棒グラフ"
-                         disabled={selectedMetric === 'skills' || selectedMetric === 'trend' || selectedMetric === 'engagement'} // Disable if not suitable
-                       >
-                         <BarChart3 className="h-4 w-4" />
-                       </Button>
-                       <Button
-                         variant={selectedChart === "line" ? "secondary" : "outline"}
-                         size="icon"
-                         onClick={() => setSelectedChart("line")}
-                         title="折れ線グラフ"
-                         disabled={selectedMetric === 'skills' || selectedMetric === 'department'} // Disable if not suitable
-                       >
-                         <LineChartIcon className="h-4 w-4" />
-                       </Button>
-                       <Button
-                         variant={selectedChart === "pie" ? "secondary" : "outline"}
-                         size="icon"
-                         onClick={() => setSelectedChart("pie")}
-                         title="円グラフ"
-                         disabled={selectedMetric !== 'department'} // Only enable for department
-                       >
-                         <PieChart className="h-4 w-4" />
-                       </Button>
-                       <Button
-                         variant={selectedChart === "radar" ? "secondary" : "outline"}
-                         size="icon"
-                         onClick={() => setSelectedChart("radar")}
-                         title="レーダーチャート"
-                         disabled={selectedMetric !== 'skills'} // Only enable for skills data
-                       >
-                         <RadarIcon className="h-4 w-4" />
-                       </Button>
-                     </div>
-                   </div>
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">比較対象</h4>
+                    <RadioGroup
+                      value={selectedCompareType}
+                      onValueChange={setSelectedCompareType}
+                      className="mt-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="department" id="r-department" />
+                        <Label htmlFor="r-department">部署間比較</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="industry" id="r-industry" />
+                        <Label htmlFor="r-industry">業界平均比較</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="historical" id="r-historical" />
+                        <Label htmlFor="r-historical">過去データ比較</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">グラフタイプ</h4>
+                    <div className="flex gap-2 mt-2">
+                      <Button
+                        variant={
+                          selectedChart === "bar" ? "secondary" : "outline"
+                        }
+                        size="icon"
+                        onClick={() => setSelectedChart("bar")}
+                        title="棒グラフ"
+                        disabled={
+                          selectedMetric === "skills" ||
+                          selectedMetric === "trend" ||
+                          selectedMetric === "engagement"
+                        } // Disable if not suitable
+                      >
+                        <BarChart3 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant={
+                          selectedChart === "line" ? "secondary" : "outline"
+                        }
+                        size="icon"
+                        onClick={() => setSelectedChart("line")}
+                        title="折れ線グラフ"
+                        disabled={
+                          selectedMetric === "skills" ||
+                          selectedMetric === "department"
+                        } // Disable if not suitable
+                      >
+                        <LineChartIcon className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant={
+                          selectedChart === "pie" ? "secondary" : "outline"
+                        }
+                        size="icon"
+                        onClick={() => setSelectedChart("pie")}
+                        title="円グラフ"
+                        disabled={selectedMetric !== "department"} // Only enable for department
+                      >
+                        <PieChart className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant={
+                          selectedChart === "radar" ? "secondary" : "outline"
+                        }
+                        size="icon"
+                        onClick={() => setSelectedChart("radar")}
+                        title="レーダーチャート"
+                        disabled={selectedMetric !== "skills"} // Only enable for skills data
+                      >
+                        <RadarIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </PopoverContent>
             </Popover>
@@ -524,11 +623,19 @@ export default function DataAnalytics() {
             const isBelowThreshold = metric.lowerIsBetter
               ? metric.value > metric.threshold
               : metric.value < metric.threshold;
-            const progressValue = metric.benchmark > 0 ? (metric.value / metric.benchmark) * 100 : 0;
+            const progressValue =
+              metric.benchmark > 0
+                ? (metric.value / metric.benchmark) * 100
+                : 0;
             const displayProgress = Math.min(100, Math.max(0, progressValue)); // Clamp between 0-100
 
             return (
-              <Card key={index} className={isBelowThreshold ? "border-destructive border-2" : ""}>
+              <Card
+                key={index}
+                className={
+                  isBelowThreshold ? "border-destructive border-2" : ""
+                }
+              >
                 <CardHeader className="pb-2 pt-4 flex flex-row items-center justify-between space-y-0">
                   <CardTitle className="text-sm font-medium">
                     {metric.name}
@@ -539,7 +646,11 @@ export default function DataAnalytics() {
                         <AlertTriangle className="h-4 w-4 text-destructive" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>閾値 ({metric.threshold}{metric.unit}) を{metric.lowerIsBetter ? '上回って' : '下回って'}います</p>
+                        <p>
+                          閾値 ({metric.threshold}
+                          {metric.unit}) を
+                          {metric.lowerIsBetter ? "上回って" : "下回って"}います
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   )}
@@ -550,8 +661,13 @@ export default function DataAnalytics() {
                     {metric.unit}
                     <span
                       className={`text-sm ml-2 ${
-                        metric.change === 0 ? "text-gray-500" :
-                        (metric.lowerIsBetter ? (metric.change < 0) : (metric.change > 0))
+                        metric.change === 0
+                          ? "text-gray-500"
+                          : (
+                              metric.lowerIsBetter
+                                ? metric.change < 0
+                                : metric.change > 0
+                            )
                           ? "text-green-600"
                           : "text-red-600"
                       }`}
@@ -568,10 +684,14 @@ export default function DataAnalytics() {
                         </span>
                         <Tooltip>
                           <TooltipTrigger>
-                             <Info className="h-3 w-3 cursor-help text-muted-foreground" />
+                            <Info className="h-3 w-3 cursor-help text-muted-foreground" />
                           </TooltipTrigger>
                           <TooltipContent>
-                             <p>自社スコア ({metric.value}{metric.unit}) vs 業界平均 ({metric.benchmark}{metric.unit})</p>
+                            <p>
+                              自社スコア ({metric.value}
+                              {metric.unit}) vs 業界平均 ({metric.benchmark}
+                              {metric.unit})
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -579,7 +699,9 @@ export default function DataAnalytics() {
                         value={displayProgress}
                         className="h-1"
                         indicatorClassName={
-                          metric.value >= metric.benchmark ? "bg-green-500" : "bg-yellow-500"
+                          metric.value >= metric.benchmark
+                            ? "bg-green-500"
+                            : "bg-yellow-500"
                         }
                       />
                     </div>
@@ -596,24 +718,37 @@ export default function DataAnalytics() {
             <CardTitle>
               {selectedMetric === "engagement" && "エンゲージメントスコア推移"}
               {selectedMetric === "leadership" && "リーダーシップスコア分析"}
-              {selectedMetric === "department" && "部署別エンゲージメントスコア"}
+              {selectedMetric === "department" &&
+                "部署別エンゲージメントスコア"}
               {selectedMetric === "skills" && "スキル評価プロファイル"}
               {selectedMetric === "trend" && "主要指標トレンド分析"}
             </CardTitle>
             <CardDescription>
-              {selectedMetric === "engagement" && "過去6ヶ月間のエンゲージメントスコア推移と業界平均比較 (折れ線グラフ)"}
-              {selectedMetric === "leadership" && "リーダーシップスキル要素別の評価スコアと業界平均比較 (棒グラフ)"}
-              {selectedMetric === "department" && `部署別のエンゲージメントスコア比較 (${selectedChart === 'pie' ? '円グラフ' : '棒グラフ'})`}
-              {selectedMetric === "skills" && "主要スキル評価の自社平均と業界平均比較 (レーダーチャート)"}
-              {selectedMetric === "trend" && "過去2年間の四半期ごとの主要指標推移 (折れ線グラフ)"}
-              <br/>
-              <span className="text-xs text-muted-foreground">フィルター設定: {selectedDepartment === 'all' ? '全部署' : selectedDepartment}, {selectedPeriod === 'last_6_months' ? '過去6ヶ月' : selectedPeriod} (データはモックです)</span>
+              {selectedMetric === "engagement" &&
+                "過去6ヶ月間のエンゲージメントスコア推移と業界平均比較 (折れ線グラフ)"}
+              {selectedMetric === "leadership" &&
+                "リーダーシップスキル要素別の評価スコアと業界平均比較 (棒グラフ)"}
+              {selectedMetric === "department" &&
+                `部署別のエンゲージメントスコア比較 (${
+                  selectedChart === "pie" ? "円グラフ" : "棒グラフ"
+                })`}
+              {selectedMetric === "skills" &&
+                "主要スキル評価の自社平均と業界平均比較 (レーダーチャート)"}
+              {selectedMetric === "trend" &&
+                "過去2年間の四半期ごとの主要指標推移 (折れ線グラフ)"}
+              <br />
+              <span className="text-xs text-muted-foreground">
+                フィルター設定:{" "}
+                {selectedDepartment === "all" ? "全部署" : selectedDepartment},{" "}
+                {selectedPeriod === "last_6_months"
+                  ? "過去6ヶ月"
+                  : selectedPeriod}{" "}
+                (データはモックです)
+              </span>
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 md:p-6">
-            <div className="h-[350px] sm:h-[400px]">
-              {getChartComponent()}
-            </div>
+            <div className="h-[350px] sm:h-[400px]">{getChartComponent()}</div>
           </CardContent>
         </Card>
 
@@ -627,40 +762,52 @@ export default function DataAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-               <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 rounded">
-                 <h3 className="font-medium text-blue-800">
-                   エンゲージメントスコアが過去6ヶ月で14%上昇
-                 </h3>
-                 <p className="text-sm text-blue-700">
-                   新しいリモートワークポリシーとワークライフバランス施策の導入が主な要因と考えられます。業界平均との差も拡大しています。
-                 </p>
-               </div>
-               <div className="border-l-4 border-red-500 pl-4 py-2 bg-red-50 rounded">
-                 <h3 className="font-medium text-red-800">部署間のエンゲージメント格差に注意</h3>
-                 <p className="text-sm text-red-700">
-                   経営企画部(+15pt vs 平均)と開発部(+6pt)が高スコアを示す一方、カスタマーサポート部(-12pt)は相対的に低いスコアです。閾値を下回っており、改善施策が必要です。
-                 </p>
-               </div>
-               <div className="border-l-4 border-green-500 pl-4 py-2 bg-green-50 rounded">
-                 <h3 className="font-medium text-green-800">リーダーシップスコアの改善</h3>
-                 <p className="text-sm text-green-700">
-                   リーダーシップ研修プログラムの効果が現れ、特に「コーチング」(+14pt)と「フィードバック」(+10pt)項目で大幅な改善が見られます。
-                 </p>
-               </div>
-               <div className="border-l-4 border-purple-500 pl-4 py-2 bg-purple-50 rounded">
-                 <h3 className="font-medium text-purple-800">スキル評価：チームワークとコミュニケーションが強み</h3>
-                 <p className="text-sm text-purple-700">
-                   「チームワーク」(4.0) と「コミュニケーション」(4.2) は業界平均を上回る強みです。一方、「リーダーシップ」(3.5) は今後の育成課題です。
-                 </p>
-               </div>
+              <div className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 rounded">
+                <h3 className="font-medium text-blue-800">
+                  エンゲージメントスコアが過去6ヶ月で14%上昇
+                </h3>
+                <p className="text-sm text-blue-700">
+                  新しいリモートワークポリシーとワークライフバランス施策の導入が主な要因と考えられます。業界平均との差も拡大しています。
+                </p>
+              </div>
+              <div className="border-l-4 border-red-500 pl-4 py-2 bg-red-50 rounded">
+                <h3 className="font-medium text-red-800">
+                  部署間のエンゲージメント格差に注意
+                </h3>
+                <p className="text-sm text-red-700">
+                  経営企画部(+15pt vs
+                  平均)と開発部(+6pt)が高スコアを示す一方、カスタマーサポート部(-12pt)は相対的に低いスコアです。閾値を下回っており、改善施策が必要です。
+                </p>
+              </div>
+              <div className="border-l-4 border-green-500 pl-4 py-2 bg-green-50 rounded">
+                <h3 className="font-medium text-green-800">
+                  リーダーシップスコアの改善
+                </h3>
+                <p className="text-sm text-green-700">
+                  リーダーシップ研修プログラムの効果が現れ、特に「コーチング」(+14pt)と「フィードバック」(+10pt)項目で大幅な改善が見られます。
+                </p>
+              </div>
+              <div className="border-l-4 border-purple-500 pl-4 py-2 bg-purple-50 rounded">
+                <h3 className="font-medium text-purple-800">
+                  スキル評価：チームワークとコミュニケーションが強み
+                </h3>
+                <p className="text-sm text-purple-700">
+                  「チームワーク」(4.0) と「コミュニケーション」(4.2)
+                  は業界平均を上回る強みです。一方、「リーダーシップ」(3.5)
+                  は今後の育成課題です。
+                </p>
+              </div>
             </div>
           </CardContent>
           <CardFooter>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center w-full gap-2">
               <span className="text-sm text-muted-foreground">
-                最終更新: 2023年12月1日 (モック) | レポート自動生成: 毎月1日 (設定例)
+                最終更新: 2023年12月1日 (モック) | レポート自動生成: 毎月1日
+                (設定例)
               </span>
-              <Button variant="outline" size="sm" disabled>詳細レポートを表示 (未実装)</Button>
+              <Button variant="outline" size="sm" disabled>
+                詳細レポートを表示 (未実装)
+              </Button>
             </div>
           </CardFooter>
         </Card>
