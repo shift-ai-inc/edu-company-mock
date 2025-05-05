@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import {
   Card,
   CardContent,
@@ -19,8 +20,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { mockAvailableAssessments } from '@/data/mockAssessments'; // Assuming mock data exists
 import { AvailableAssessment } from '@/types/assessment';
-import { Search, Filter, ArrowUpDown, Clock, Users, Send } from 'lucide-react'; // Added Send icon
-import AssessmentDetailDialog from '@/components/AssessmentDetailDialog'; // Import detail dialog
+import { Search, Filter, ArrowUpDown, Clock, Users, Send, Info } from 'lucide-react'; // Added Info icon
+// import AssessmentDetailDialog from '@/components/AssessmentDetailDialog'; // Keep if needed, but page is primary now
 import CreateAssessmentDeliveryDialog from '@/components/CreateAssessmentDeliveryDialog'; // Import create delivery dialog
 import { useToast } from "@/hooks/use-toast"; // Import useToast
 
@@ -36,12 +37,13 @@ export default function AssessmentList() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-  const [selectedAssessmentDetail, setSelectedAssessmentDetail] = useState<AvailableAssessment | null>(null);
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  // const [selectedAssessmentDetail, setSelectedAssessmentDetail] = useState<AvailableAssessment | null>(null); // Keep if dialog is used
+  // const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false); // Keep if dialog is used
   const [assigningAssessment, setAssigningAssessment] = useState<AvailableAssessment | null>(null); // State for create dialog
   const [isCreateDeliveryDialogOpen, setIsCreateDeliveryDialogOpen] = useState(false); // State for create dialog visibility
 
   const { toast } = useToast(); // Initialize toast
+  const navigate = useNavigate(); // Initialize navigate
 
   // Fetch mock data on mount
   useEffect(() => {
@@ -72,7 +74,12 @@ export default function AssessmentList() {
       if (sortKey === 'createdAt') {
         compareA = new Date(a.createdAt).getTime();
         compareB = new Date(b.createdAt).getTime();
+      } else if (sortKey === 'estimatedTime') {
+        // Ensure numeric comparison for time
+        compareA = Number(a.estimatedTime);
+        compareB = Number(b.estimatedTime);
       }
+
 
       let comparison = 0;
       if (compareA > compareB) {
@@ -96,9 +103,9 @@ export default function AssessmentList() {
     }
   };
 
-  const handleViewDetails = (assessment: AvailableAssessment) => {
-    setSelectedAssessmentDetail(assessment);
-    setIsDetailDialogOpen(true);
+  // Navigate to the details page
+  const handleViewDetails = (assessmentId: string) => {
+    navigate(`/assessments/${assessmentId}`);
   };
 
   // --- Delivery Creation Handling ---
@@ -108,7 +115,7 @@ export default function AssessmentList() {
   };
 
   const handleDeliveryCreated = (details: any) => {
-     console.log("Delivery creation successful (in parent):", details);
+     console.log("Delivery creation successful (in parent list):", details);
      // Optionally, you could refresh the delivery list or navigate there
      // For now, just log it. The dialog handles the toast.
   };
@@ -128,7 +135,7 @@ export default function AssessmentList() {
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
           <Input
             placeholder="検索 (タイトル, 説明, カテゴリ)..."
-            className="pl-8 w-[300px]"
+            className="pl-8 w-[300px] bg-white" // Added bg-white
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -137,7 +144,7 @@ export default function AssessmentList() {
         <div className="flex flex-wrap gap-4 items-center">
           {/* Category Filter */}
           <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value as CategoryFilter)}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] bg-white"> {/* Added bg-white */}
               <Filter className="mr-2 h-4 w-4" />
               <SelectValue placeholder="カテゴリ" />
             </SelectTrigger>
@@ -150,18 +157,18 @@ export default function AssessmentList() {
             </SelectContent>
           </Select>
 
-          {/* Sorting (Example: by Title) - Add more buttons as needed */}
+          {/* Sorting Buttons */}
           <Button variant="outline" size="sm" onClick={() => handleSortChange('title')}>
             タイトル
-            {sortKey === 'title' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+            {sortKey === 'title' && <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />}
           </Button>
            <Button variant="outline" size="sm" onClick={() => handleSortChange('estimatedTime')}>
              所要時間
-             {sortKey === 'estimatedTime' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+             {sortKey === 'estimatedTime' && <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />}
            </Button>
            <Button variant="outline" size="sm" onClick={() => handleSortChange('createdAt')}>
              作成日
-             {sortKey === 'createdAt' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+             {sortKey === 'createdAt' && <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />}
            </Button>
         </div>
       </div>
@@ -180,7 +187,7 @@ export default function AssessmentList() {
                    <CardTitle className="text-lg">{assessment.title}</CardTitle>
                    <Badge variant="secondary">{assessment.category}</Badge>
                 </div>
-                <CardDescription className="text-sm line-clamp-3">{assessment.description}</CardDescription>
+                <CardDescription className="text-sm line-clamp-3 h-[60px]">{assessment.description}</CardDescription> {/* Fixed height */}
               </CardHeader>
               <CardContent className="flex-grow">
                 <div className="text-sm text-gray-600 space-y-1">
@@ -191,12 +198,13 @@ export default function AssessmentList() {
                   {/* Placeholder for usage count - replace with real data */}
                   <div className="flex items-center">
                     <Users className="mr-2 h-4 w-4 text-gray-500" />
-                    <span>利用回数: {assessment.usageCount ?? 'N/A'}</span>
+                    <span>利用回数: {assessment.usageCount?.toLocaleString() ?? 'N/A'}</span>
                   </div>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end gap-2">
-                <Button variant="outline" size="sm" onClick={() => handleViewDetails(assessment)}>
+                <Button variant="outline" size="sm" onClick={() => handleViewDetails(assessment.id)}>
+                  <Info className="mr-1.5 h-4 w-4" />
                   詳細
                 </Button>
                 <Button size="sm" onClick={() => handleConfigureDeliveryClick(assessment)}>
@@ -209,12 +217,14 @@ export default function AssessmentList() {
         </div>
       )}
 
-      {/* Assessment Detail Dialog */}
+      {/* Assessment Detail Dialog (Optional - can be removed if page is sufficient) */}
+      {/*
       <AssessmentDetailDialog
         assessment={selectedAssessmentDetail}
         open={isDetailDialogOpen}
         onOpenChange={setIsDetailDialogOpen}
       />
+      */}
 
        {/* Create Assessment Delivery Dialog */}
        <CreateAssessmentDeliveryDialog

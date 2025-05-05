@@ -26,9 +26,9 @@ import {
 } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import { AvailableAssessment } from '@/types/assessment';
-import { format, addDays, setHours, setMinutes, isValid } from 'date-fns';
+import { format, addDays, setHours, setMinutes, isValid, isToday } from 'date-fns'; // Added isToday import
 import { ja } from 'date-fns/locale';
-import { Calendar as CalendarIcon, Clock, Mail } from "lucide-react"; // Added Mail icon
+import { Calendar as CalendarIcon, Clock, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CreateAssessmentDeliveryDialogProps {
@@ -143,7 +143,8 @@ export default function CreateAssessmentDeliveryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px]">
+      {/* Slightly increased max-width for better spacing */}
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>アセスメント配信設定</DialogTitle>
           <DialogDescription>
@@ -151,113 +152,120 @@ export default function CreateAssessmentDeliveryDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-6 py-4">
+          {/* Use grid-cols-[auto_1fr] for label + input layout */}
+          <div className="grid gap-y-4 gap-x-4 py-4"> {/* Adjusted gap */}
+
             {/* Target Group */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="targetGroup" className="text-right">
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4">
+              <Label htmlFor="targetGroup" className="whitespace-nowrap"> {/* Removed text-right, added whitespace-nowrap */}
                 対象グループ <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="targetGroup"
                 value={targetGroup}
                 onChange={(e) => setTargetGroup(e.target.value)}
-                className="col-span-3"
                 placeholder="例: 営業部, 新人研修グループ"
                 required
               />
             </div>
 
             {/* Start Date & Time */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="startDate" className="text-right">
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4">
+              <Label htmlFor="startDate" className="whitespace-nowrap"> {/* Removed text-right, added whitespace-nowrap */}
                 開始日時 <span className="text-red-500">*</span>
               </Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "col-span-2 justify-start text-left font-normal",
-                      !startDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, "PPP", { locale: ja }) : <span>日付を選択</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={setStartDate}
-                    initialFocus
-                    locale={ja}
-                    disabled={(date) => Boolean(date < new Date() && !isToday(date))}
-                  />
-                </PopoverContent>
-              </Popover>
-              <div className="relative col-span-1">
-                 <Clock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                 <Input
-                   id="startTime"
-                   type="time"
-                   value={startTime}
-                   onChange={(e) => setStartTime(e.target.value)}
-                   className="pl-8"
-                   required
-                 />
+              {/* Use flex for date and time inputs */}
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[180px] justify-start text-left font-normal", // Fixed width for date button
+                        !startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDate ? format(startDate, "PPP", { locale: ja }) : <span>日付を選択</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={startDate}
+                      onSelect={setStartDate}
+                      initialFocus
+                      locale={ja}
+                      disabled={(date) => Boolean(date < new Date() && !isToday(date))}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <div className="relative flex-1"> {/* Time input takes remaining space */}
+                   <Clock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                   <Input
+                     id="startTime"
+                     type="time"
+                     value={startTime}
+                     onChange={(e) => setStartTime(e.target.value)}
+                     className="pl-8 w-full" // Ensure time input takes full width of its container
+                     required
+                   />
+                 </div>
                </div>
             </div>
 
             {/* End Date & Time */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="endDate" className="text-right">
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4">
+              <Label htmlFor="endDate" className="whitespace-nowrap"> {/* Removed text-right, added whitespace-nowrap */}
                 終了日時 <span className="text-red-500">*</span>
               </Label>
-               <Popover>
-                 <PopoverTrigger asChild>
-                   <Button
-                     variant={"outline"}
-                     className={cn(
-                       "col-span-2 justify-start text-left font-normal",
-                       !endDate && "text-muted-foreground"
-                     )}
-                   >
-                     <CalendarIcon className="mr-2 h-4 w-4" />
-                     {endDate ? format(endDate, "PPP", { locale: ja }) : <span>日付を選択</span>}
-                   </Button>
-                 </PopoverTrigger>
-                 <PopoverContent className="w-auto p-0">
-                   <Calendar
-                     mode="single"
-                     selected={endDate}
-                     onSelect={setEndDate}
-                     initialFocus
-                     locale={ja}
-                     disabled={(date) => Boolean(startDate && date < startDate)}
+              {/* Use flex for date and time inputs */}
+              <div className="flex items-center gap-2">
+                 <Popover>
+                   <PopoverTrigger asChild>
+                     <Button
+                       variant={"outline"}
+                       className={cn(
+                         "w-[180px] justify-start text-left font-normal", // Fixed width for date button
+                         !endDate && "text-muted-foreground"
+                       )}
+                     >
+                       <CalendarIcon className="mr-2 h-4 w-4" />
+                       {endDate ? format(endDate, "PPP", { locale: ja }) : <span>日付を選択</span>}
+                     </Button>
+                   </PopoverTrigger>
+                   <PopoverContent className="w-auto p-0">
+                     <Calendar
+                       mode="single"
+                       selected={endDate}
+                       onSelect={setEndDate}
+                       initialFocus
+                       locale={ja}
+                       disabled={(date) => Boolean(startDate && date < startDate)}
+                     />
+                   </PopoverContent>
+                 </Popover>
+                 <div className="relative flex-1"> {/* Time input takes remaining space */}
+                   <Clock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                   <Input
+                     id="endTime"
+                     type="time"
+                     value={endTime}
+                     onChange={(e) => setEndTime(e.target.value)}
+                     className="pl-8 w-full" // Ensure time input takes full width of its container
+                     required
                    />
-                 </PopoverContent>
-               </Popover>
-               <div className="relative col-span-1">
-                 <Clock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                 <Input
-                   id="endTime"
-                   type="time"
-                   value={endTime}
-                   onChange={(e) => setEndTime(e.target.value)}
-                   className="pl-8"
-                   required
-                 />
+                 </div>
                </div>
             </div>
 
             {/* Reminder Timing */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="reminderTiming" className="text-right">
+            <div className="grid grid-cols-[auto_1fr] items-center gap-x-4">
+              <Label htmlFor="reminderTiming" className="whitespace-nowrap"> {/* Removed text-right, added whitespace-nowrap */}
                 リマインダー
               </Label>
               <Select value={reminderTiming} onValueChange={setReminderTiming}>
-                <SelectTrigger className="col-span-3">
+                <SelectTrigger>
                   <SelectValue placeholder="リマインダータイミングを選択" />
                 </SelectTrigger>
                 <SelectContent>
@@ -269,8 +277,8 @@ export default function CreateAssessmentDeliveryDialog({
               </Select>
             </div>
 
-             {/* Placeholder for Future Features */}
-             <div className="col-span-4 mt-2 p-3 bg-gray-50 rounded border border-dashed border-gray-300">
+             {/* Placeholder for Future Features - Spans full width */}
+             <div className="col-span-full mt-2 p-3 bg-gray-50 rounded border border-dashed border-gray-300"> {/* Use col-span-full */}
                 <p className="text-sm text-gray-600 flex items-center">
                     <Mail className="mr-2 h-4 w-4 text-blue-500"/> 今後のメール機能拡張予定:
                 </p>
@@ -299,11 +307,4 @@ export default function CreateAssessmentDeliveryDialog({
       </DialogContent>
     </Dialog>
   );
-}
-
-function isToday(date: Date): boolean {
-  const today = new Date();
-  return date.getDate() === today.getDate() &&
-         date.getMonth() === today.getMonth() &&
-         date.getFullYear() === today.getFullYear();
 }

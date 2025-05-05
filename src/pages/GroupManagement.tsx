@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea"; // Import Textarea
@@ -64,8 +65,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast"; // Import useToast
 
-// グループデータの型定義 (拡張)
-interface Group {
+// グループデータの型定義 (拡張) - Export this type
+export interface Group {
   id: number;
   name: string;
   type: "department" | "team" | "project";
@@ -87,8 +88,8 @@ interface Member {
   department: string;
 }
 
-// サンプルグループデータ (拡張)
-const sampleGroups: Group[] = [
+// サンプルグループデータ (拡張) - Export this data
+export const sampleGroups: Group[] = [
   {
     id: 1,
     name: "経営企画部",
@@ -284,6 +285,7 @@ export default function GroupManagement() {
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
   const [createGroupData, setCreateGroupData] = useState<CreateGroupState>(initialCreateGroupState);
   const { toast } = useToast(); // Initialize toast
+  const navigate = useNavigate(); // Initialize navigate
 
   // フィルタリングされたグループリスト
   const filteredGroups = groups.filter((group) => {
@@ -368,18 +370,22 @@ export default function GroupManagement() {
     };
 
     setGroups((prev) => [...prev, newGroup]);
+    // Also update the exported sampleGroups if it's intended to be the single source of truth
+    // sampleGroups.push(newGroup); // Be careful with direct mutation if imported elsewhere
     setShowCreateGroupDialog(false);
     setCreateGroupData(initialCreateGroupState); // Reset form
     toast({
       title: "成功",
       description: `グループ「${newGroup.name}」が作成されました。`,
     });
-
-    // Option to immediately add members (optional)
-    // setSelectedGroup(newGroup);
-    // setShowAddMembersDialog(true);
   };
   // --- End Create Group Logic ---
+
+  // --- Row Click Navigation ---
+  const handleRowClick = (groupId: number) => {
+    navigate(`/groups/${groupId}`);
+  };
+  // --- End Row Click Navigation ---
 
   return (
     <div className="p-8">
@@ -443,7 +449,11 @@ export default function GroupManagement() {
           <TableBody>
             {filteredGroups.length > 0 ? (
               filteredGroups.map((group) => (
-                <TableRow key={group.id}>
+                <TableRow
+                  key={group.id}
+                  onClick={() => handleRowClick(group.id)} // Add onClick handler
+                  className="cursor-pointer hover:bg-muted/60" // Add cursor and hover styles
+                >
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {/* Display Color Code */}
@@ -476,15 +486,17 @@ export default function GroupManagement() {
                   </TableCell>
                   <TableCell>{group.createdAt}</TableCell>
                   <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                    {/* Stop propagation on dropdown trigger */}
+                    <DropdownMenu onOpenChange={(open) => { if (open) { event?.stopPropagation(); } }}>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation(); // Stop propagation here too
                             setSelectedGroup(group);
                             setSelectedMembers([]);
                             setShowAddMembersDialog(true);
@@ -493,16 +505,16 @@ export default function GroupManagement() {
                           <UserPlus className="mr-2 h-4 w-4" />
                           メンバー追加/表示
                         </DropdownMenuItem>
-                        <DropdownMenuItem disabled> {/* TODO: Implement Edit */}
+                        <DropdownMenuItem disabled onClick={(e) => e.stopPropagation()}> {/* TODO: Implement Edit */}
                           <Pencil className="mr-2 h-4 w-4" />
                           編集
                         </DropdownMenuItem>
-                        <DropdownMenuItem disabled> {/* TODO: Implement Settings View/Edit */}
+                        <DropdownMenuItem disabled onClick={(e) => e.stopPropagation()}> {/* TODO: Implement Settings View/Edit */}
                            <Settings className="mr-2 h-4 w-4" />
                            設定
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50" disabled> {/* TODO: Implement Delete */}
+                        <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50" disabled onClick={(e) => e.stopPropagation()}> {/* TODO: Implement Delete */}
                           <Trash2 className="mr-2 h-4 w-4" />
                           削除
                         </DropdownMenuItem>
@@ -751,6 +763,9 @@ export default function GroupManagement() {
                     return g;
                 });
                 setGroups(updatedGroups);
+                // Also update the exported sampleGroups if needed
+                // const sampleIndex = sampleGroups.findIndex(g => g.id === selectedGroup?.id);
+                // if (sampleIndex > -1) sampleGroups[sampleIndex].memberCount += selectedMembers.length;
                 setShowAddMembersDialog(false);
                 toast({ title: "成功", description: `${selectedMembers.length}名のメンバーが追加されました（モック）。` });
               }}
@@ -823,6 +838,6 @@ export default function GroupManagement() {
   );
 }
 
-// Export sample groups for potential use elsewhere
-export { sampleGroups };
-export type { Group };
+// Export sample groups and type for potential use elsewhere (like GroupDetail)
+// export { sampleGroups }; // Already exported above
+// export type { Group }; // Already exported above

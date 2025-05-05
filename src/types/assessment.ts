@@ -4,7 +4,7 @@ export interface AvailableAssessment {
   id: string;
   title: string;
   description: string;
-  thumbnailUrl: string;
+  thumbnailUrl: string; // Keep this for list/card view
   type: 'スキル評価' | '360度評価' | '自己評価' | 'エンゲージメント';
   difficulty: 'easy' | 'medium' | 'hard';
   skillLevel: 'beginner' | 'intermediate' | 'advanced' | 'all';
@@ -12,9 +12,9 @@ export interface AvailableAssessment {
   isPopular: boolean;
   isRecommended: boolean;
   tags: string[];
-  category: string;
-  createdAt: string;
-  usageCount: number;
+  category: string; // Keep category for filtering/display
+  createdAt: string; // ISO date string
+  usageCount: number; // Keep usage count
 }
 
 export interface AssessmentCategory {
@@ -41,15 +41,17 @@ export interface AssessmentStatistics {
   lastDelivered?: string; // ISO date string or formatted date
 }
 
+// Detailed Assessment type extending the base AvailableAssessment
 export interface AssessmentDetail extends AvailableAssessment {
-  structureDescription: string; // e.g., "3 sections: Concepts, Practical, Scenario"
-  categories: AssessmentCategory[];
+  structureDescription: string; // e.g., "全20問: 選択式15問、簡単なコーディング問題5問。"
+  categories: AssessmentCategory[]; // Breakdown by category/section
   difficultyDistribution: DifficultyDistribution;
   sampleQuestions: SampleQuestion[];
-  targetSkills: string[];
-  measurableAbilities: string[];
-  statistics: AssessmentStatistics;
+  targetSkills: string[]; // Skills this assessment targets
+  measurableAbilities: string[]; // Abilities measured
+  statistics: AssessmentStatistics; // Delivery stats
 }
+
 
 // Helper function to get display text for difficulty
 export const getDifficultyText = (difficulty: AvailableAssessment['difficulty']) => {

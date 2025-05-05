@@ -223,7 +223,7 @@ export default function UserManagement({
   const handleDeleteSelected = () => {
     if (
       window.confirm(
-        `選択した${selectedUsers.length}名のユーザーを削除しますか？`
+        `選択した${selectedUsers.length}名のメンバーを削除しますか？`
       )
     ) {
       setUsers(users.filter((user) => !selectedUsers.includes(user.id)));
@@ -270,246 +270,253 @@ export default function UserManagement({
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-          メンバー管理
-        </h2>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex flex-wrap gap-2 items-center">
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-              <Input
-                placeholder="メンバーを検索..."
-                className="pl-8 w-[250px]"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+    <div className="container mx-auto p-6 mt-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-gray-800">メンバー管理</CardTitle>
+          <CardDescription>メンバーの検索、追加、編集、削除を行います。</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex flex-wrap gap-2 items-center">
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                  <Input
+                    placeholder="メンバーを検索..."
+                    className="pl-8 w-[250px]"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+
+                <Select value={selectedRole} onValueChange={setSelectedRole}>
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue placeholder="役割" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">すべての役割</SelectItem>
+                    <SelectItem value="管理者">管理者</SelectItem>
+                    <SelectItem value="リーダー">リーダー</SelectItem>
+                    <SelectItem value="一般ユーザー">一般ユーザー</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue placeholder="ステータス" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">すべてのステータス</SelectItem>
+                    <SelectItem value="active">有効</SelectItem>
+                    <SelectItem value="pending">保留中</SelectItem>
+                    <SelectItem value="inactive">無効</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={selectedDepartment}
+                  onValueChange={setSelectedDepartment}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="部署" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">すべての部署</SelectItem>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept} value={dept}>
+                        {dept}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      メンバー追加
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => setShowAddUserDialog(true)}>
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      個別登録
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowBulkImportDialog(true)}>
+                      <FileUp className="mr-2 h-4 w-4" />
+                      一括インポート (CSV)
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                      <MoreHorizontal className="mr-2 h-4 w-4" />
+                      その他
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={() => setShowPermissionsDialog(true)}
+                    >
+                      <UserCheck className="mr-2 h-4 w-4" />
+                      権限設定
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Download className="mr-2 h-4 w-4" />
+                      CSVエクスポート
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="text-red-600"
+                      onClick={handleDeleteSelected}
+                      disabled={selectedUsers.length === 0}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      選択したメンバーを削除
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
-
-            <Select value={selectedRole} onValueChange={setSelectedRole}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="役割" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">すべての役割</SelectItem>
-                <SelectItem value="管理者">管理者</SelectItem>
-                <SelectItem value="リーダー">リーダー</SelectItem>
-                <SelectItem value="一般ユーザー">一般ユーザー</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="ステータス" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">すべてのステータス</SelectItem>
-                <SelectItem value="active">有効</SelectItem>
-                <SelectItem value="pending">保留中</SelectItem>
-                <SelectItem value="inactive">無効</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={selectedDepartment}
-              onValueChange={setSelectedDepartment}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="部署" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">すべての部署</SelectItem>
-                {departments.map((dept) => (
-                  <SelectItem key={dept} value={dept}>
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
 
-          <div className="flex gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  メンバー追加
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setShowAddUserDialog(true)}>
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  個別登録
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setShowBulkImportDialog(true)}>
-                  <FileUp className="mr-2 h-4 w-4" />
-                  一括インポート (CSV)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <MoreHorizontal className="mr-2 h-4 w-4" />
-                  その他
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem
-                  onClick={() => setShowPermissionsDialog(true)}
+          {selectedUsers.length > 0 && (
+            <div className="bg-blue-50 p-3 mb-4 rounded-lg flex justify-between items-center">
+              <div className="text-sm">
+                <span className="font-medium">{selectedUsers.length}</span>{" "}
+                名のメンバーを選択中
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBulkStatusChange("active")}
                 >
-                  <UserCheck className="mr-2 h-4 w-4" />
-                  権限設定
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Download className="mr-2 h-4 w-4" />
-                  CSVエクスポート
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
+                  有効にする
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBulkStatusChange("inactive")}
+                >
+                  無効にする
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="text-red-600"
                   onClick={handleDeleteSelected}
-                  disabled={selectedUsers.length === 0}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  選択したメンバーを削除
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </div>
+                  削除
+                </Button>
+              </div>
+            </div>
+          )}
 
-      {selectedUsers.length > 0 && (
-        <div className="bg-blue-50 p-3 mb-4 rounded-lg flex justify-between items-center">
-          <div className="text-sm">
-            <span className="font-medium">{selectedUsers.length}</span>{" "}
-            名のメンバーを選択中
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleBulkStatusChange("active")}
-            >
-              有効にする
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleBulkStatusChange("inactive")}
-            >
-              無効にする
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-red-600"
-              onClick={handleDeleteSelected}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              削除
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-white shadow rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px]">
-                <Checkbox
-                  checked={selectAll}
-                  onCheckedChange={handleSelectAll}
-                />
-              </TableHead>
-              <TableHead>名前</TableHead>
-              <TableHead>メールアドレス</TableHead>
-              <TableHead>部署</TableHead>
-              <TableHead>役割</TableHead>
-              <TableHead>ステータス</TableHead>
-              <TableHead>最終ログイン</TableHead>
-              <TableHead className="text-right">アクション</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[50px]">
                     <Checkbox
-                      checked={selectedUsers.includes(user.id)}
-                      onCheckedChange={() => handleSelectUser(user.id)}
+                      checked={selectAll}
+                      onCheckedChange={handleSelectAll}
                     />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback>{user.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium">{user.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.department}</TableCell>
-                  <TableCell>
-                    <Badge
-                      className={`${
-                        user.role === "管理者"
-                          ? "bg-blue-100 text-blue-800"
-                          : user.role === "リーダー"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {user.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(user.status)}</TableCell>
-                  <TableCell>{user.lastLogin}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>編集</DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <KeyRound className="mr-2 h-4 w-4" />
-                          パスワードリセット
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Mail className="mr-2 h-4 w-4" />
-                          メール送信
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          削除
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                  </TableHead>
+                  <TableHead>名前</TableHead>
+                  <TableHead>メールアドレス</TableHead>
+                  <TableHead>部署</TableHead>
+                  <TableHead>役割</TableHead>
+                  <TableHead>ステータス</TableHead>
+                  <TableHead>最終ログイン</TableHead>
+                  <TableHead className="text-right">アクション</TableHead>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={8}
-                  className="text-center py-6 text-gray-500"
-                >
-                  検索条件に一致するメンバーが見つかりませんでした
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedUsers.includes(user.id)}
+                          onCheckedChange={() => handleSelectUser(user.id)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback>{user.name[0]}</AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium">{user.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.department}</TableCell>
+                      <TableCell>
+                        <Badge
+                          className={`${
+                            user.role === "管理者"
+                              ? "bg-blue-100 text-blue-800"
+                              : user.role === "リーダー"
+                              ? "bg-purple-100 text-purple-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {user.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{getStatusBadge(user.status)}</TableCell>
+                      <TableCell>{user.lastLogin}</TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>編集</DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <KeyRound className="mr-2 h-4 w-4" />
+                              パスワードリセット
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Mail className="mr-2 h-4 w-4" />
+                              メール送信
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-red-600">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              削除
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      className="text-center py-6 text-gray-500"
+                    >
+                      検索条件に一致するメンバーが見つかりませんでした
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* --- Dialogs remain unchanged --- */}
 
       {/* 個別メンバー追加ダイアログ */}
       <Dialog open={showAddUserDialog} onOpenChange={setShowAddUserDialog}>

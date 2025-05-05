@@ -1,14 +1,44 @@
-import { Group } from '@/types/group';
+import type { Group } from '@/types/group';
 
 export const mockGroups: Group[] = [
-  { id: 'group-1', name: '本社人事部', memberCount: 15, createdAt: '2023-01-10T10:00:00Z' },
-  { id: 'group-2', name: '開発部Aチーム', memberCount: 8, createdAt: '2023-02-15T11:30:00Z' },
-  { id: 'group-3', name: '営業部東日本', memberCount: 25, createdAt: '2023-03-20T14:00:00Z' },
-  { id: 'group-4', name: '新卒研修グループ', memberCount: 30, createdAt: '2024-04-01T09:00:00Z' },
-  { id: 'group-5', name: '大阪支社総務', memberCount: 5, createdAt: '2023-05-10T16:45:00Z' },
+  { id: 1, name: '経営企画部', type: 'department', memberCount: 12, description: '会社の戦略立案と実行を担当。' },
+  { id: 2, name: '人事部', type: 'department', memberCount: 8, description: '採用、育成、評価などを担当。' },
+  { id: 3, name: 'マーケティング部', type: 'department', memberCount: 15, description: '市場調査、プロモーションを担当。' },
+  { id: 4, name: '開発部 - チームA', type: 'team', memberCount: 6, description: '製品Aの開発を担当。' },
+  { id: 5, name: '開発部 - チームB', type: 'team', memberCount: 7, description: '製品Bの開発を担当。' },
+  { id: 6, name: '営業部 - 第一課', type: 'team', memberCount: 10, description: '首都圏エリアの営業を担当。' },
+  { id: 7, name: '営業部 - 第二課', type: 'team', memberCount: 9, description: '西日本エリアの営業を担当。' },
+  { id: 8, name: 'カスタマーサポート', type: 'department', memberCount: 11, description: '顧客からの問い合わせ対応。' },
 ];
 
-// Function to get group names from IDs, useful for display
-export const getGroupNamesByIds = (groupIds: string[]): string[] => {
-  return groupIds.map(id => mockGroups.find(g => g.id === id)?.name).filter((name): name is string => !!name);
+// Function to get group names by their IDs
+export const getGroupNamesByIds = (groupIds: number[]): string[] => {
+  return groupIds
+    .map(id => mockGroups.find(group => group.id === id)?.name)
+    .filter((name): name is string => name !== undefined); // Filter out undefined results and assert type
+};
+
+// Function to get a group by its ID
+export const getGroupById = (groupId: number): Group | undefined => {
+  return mockGroups.find(group => group.id === groupId);
+};
+
+// Function to update a group
+export const updateGroup = (updatedGroup: Group): boolean => {
+  const index = mockGroups.findIndex(group => group.id === updatedGroup.id);
+  if (index !== -1) {
+    mockGroups[index] = updatedGroup;
+    return true;
+  }
+  return false;
+};
+
+// Function to delete a group
+export const deleteGroup = (groupId: number): boolean => {
+    const index = mockGroups.findIndex(group => group.id === groupId);
+    if (index !== -1) {
+        mockGroups.splice(index, 1);
+        return true;
+    }
+    return false;
 };
