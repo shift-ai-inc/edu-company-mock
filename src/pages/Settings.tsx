@@ -1,33 +1,25 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+// import { Input } from "@/components/ui/input"; // No longer needed for company name/timezone
+// import { Label } from "@/components/ui/label"; // No longer needed for company name/timezone
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label"; // Keep for Notification and Security settings
+import { useNavigate } from "react-router-dom";
 
 export default function Settings() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // In a real app, you'd clear tokens, user state, etc.
+    navigate("/login");
+  };
+
   return (
     <div className="p-8">
       <h2 className="text-2xl font-semibold text-gray-900 mb-6">設定</h2>
 
       <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>一般設定</CardTitle>
-            <CardDescription>
-              アプリケーションの基本設定を管理します
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="company-name">会社名</Label>
-              <Input id="company-name" defaultValue="株式会社サンプル" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="timezone">タイムゾーン</Label>
-              <Input id="timezone" defaultValue="Asia/Tokyo" />
-            </div>
-          </CardContent>
-        </Card>
+        {/* General Settings Card Removed */}
 
         <Card>
           <CardHeader>
@@ -80,6 +72,20 @@ export default function Settings() {
                 パスワードを変更
               </Button>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>アカウント操作</CardTitle>
+            <CardDescription>
+              アカウントからのログアウトを行います
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="destructive" onClick={handleLogout}>
+              ログアウト
+            </Button>
           </CardContent>
         </Card>
       </div>

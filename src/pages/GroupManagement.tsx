@@ -18,20 +18,20 @@ import {
   Users,
   FolderTree,
   Building,
-  ChevronRight,
+  // ChevronRight, // No longer used directly in table row for navigation icon
   Pencil,
   Trash2,
   UserPlus,
-  ChevronDown,
-  Palette, // Icon for color
-  Type, // Icon for abbreviation
+  // ChevronDown, // No longer used directly here
+  // Palette, // Icon for color - not used directly
+  // Type, // Icon for abbreviation - not used directly
   Settings, // Icon for settings
 } from "lucide-react";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
+  // CardDescription, // Not used in this modification
+  // CardFooter, // Not used in this modification
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -49,7 +49,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger, // Import DialogTrigger
+  // DialogTrigger, // Not used directly here
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
@@ -59,7 +59,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Not used
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -68,7 +68,7 @@ import { useToast } from "@/hooks/use-toast"; // Import useToast
 // グループデータの型定義 (拡張) - Export this type
 export interface Group {
   id: number;
-  name: string;
+  name:string;
   type: "department" | "team" | "project";
   parentId: number | null;
   memberCount: number; // 所属ユーザー数
@@ -370,8 +370,6 @@ export default function GroupManagement() {
     };
 
     setGroups((prev) => [...prev, newGroup]);
-    // Also update the exported sampleGroups if it's intended to be the single source of truth
-    // sampleGroups.push(newGroup); // Be careful with direct mutation if imported elsewhere
     setShowCreateGroupDialog(false);
     setCreateGroupData(initialCreateGroupState); // Reset form
     toast({
@@ -388,15 +386,25 @@ export default function GroupManagement() {
   // --- End Row Click Navigation ---
 
   return (
-    <div className="p-8">
-      {/* Header and Toolbar */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-          グループ管理
-        </h2>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          {/* Search and Filter */}
-          <div className="flex flex-wrap gap-2 items-center">
+    <div className="space-y-6"> {/* Replaced p-8 with space-y-6 for consistency with Card */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <CardTitle>グループ管理</CardTitle>
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setShowOrganizationDialog(true)}>
+                <FolderTree className="mr-2 h-4 w-4" />
+                組織図を表示
+              </Button>
+              <Button onClick={() => setShowCreateGroupDialog(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                新規グループ
+              </Button>
+            </div>
+          </div>
+           {/* Search and Filter - Moved below title and actions, but still in header */}
+           <div className="flex flex-wrap gap-2 items-center pt-4">
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
               <Input
@@ -418,123 +426,114 @@ export default function GroupManagement() {
               </SelectContent>
             </Select>
           </div>
-          {/* Action Buttons */}
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setShowOrganizationDialog(true)}>
-              <FolderTree className="mr-2 h-4 w-4" />
-              組織図を表示
-            </Button>
-            <Button onClick={() => setShowCreateGroupDialog(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              新規グループ
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Group Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>グループ名</TableHead>
-              <TableHead>タイプ</TableHead>
-              <TableHead>親グループ</TableHead>
-              <TableHead>メンバー数</TableHead>
-              <TableHead>説明</TableHead>
-              <TableHead>作成日</TableHead>
-              <TableHead className="text-right">アクション</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredGroups.length > 0 ? (
-              filteredGroups.map((group) => (
-                <TableRow
-                  key={group.id}
-                  onClick={() => handleRowClick(group.id)} // Add onClick handler
-                  className="cursor-pointer hover:bg-muted/60" // Add cursor and hover styles
-                >
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {/* Display Color Code */}
-                      {group.colorCode && (
-                        <span
-                          className="h-4 w-4 rounded-full inline-block border border-gray-300"
-                          style={{ backgroundColor: group.colorCode }}
-                          title={`カラーコード: ${group.colorCode}`}
-                        ></span>
-                      )}
-                      {getGroupIcon(group.type)}
-                      <span className="font-medium">{group.name}</span>
-                      {/* Display Abbreviation */}
-                      {group.abbreviation && (
-                        <Badge variant="secondary" title={`略称: ${group.abbreviation}`}>
-                          {group.abbreviation}
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {getGroupTypeName(group.type)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{getParentName(group.parentId)}</TableCell>
-                  <TableCell>{group.memberCount}</TableCell>
-                  <TableCell className="max-w-[250px] truncate" title={group.description}>
-                    {group.description || "-"}
-                  </TableCell>
-                  <TableCell>{group.createdAt}</TableCell>
-                  <TableCell className="text-right">
-                    {/* Stop propagation on dropdown trigger */}
-                    <DropdownMenu onOpenChange={(open) => { if (open) { event?.stopPropagation(); } }}>
-                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation(); // Stop propagation here too
-                            setSelectedGroup(group);
-                            setSelectedMembers([]);
-                            setShowAddMembersDialog(true);
-                          }}
-                        >
-                          <UserPlus className="mr-2 h-4 w-4" />
-                          メンバー追加/表示
-                        </DropdownMenuItem>
-                        <DropdownMenuItem disabled onClick={(e) => e.stopPropagation()}> {/* TODO: Implement Edit */}
-                          <Pencil className="mr-2 h-4 w-4" />
-                          編集
-                        </DropdownMenuItem>
-                        <DropdownMenuItem disabled onClick={(e) => e.stopPropagation()}> {/* TODO: Implement Settings View/Edit */}
-                           <Settings className="mr-2 h-4 w-4" />
-                           設定
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50" disabled onClick={(e) => e.stopPropagation()}> {/* TODO: Implement Delete */}
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          削除
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+        </CardHeader>
+        <CardContent>
+          {/* Group Table */}
+          {/* Removed: bg-white shadow rounded-lg overflow-hidden - Card handles this */}
+          <div className="overflow-x-auto"> {/* Added for table responsiveness */}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>グループ名</TableHead>
+                  <TableHead>タイプ</TableHead>
+                  <TableHead>親グループ</TableHead>
+                  <TableHead>メンバー数</TableHead>
+                  <TableHead>説明</TableHead>
+                  <TableHead>作成日</TableHead>
+                  <TableHead className="text-right">アクション</TableHead>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-10 text-gray-500">
-                  {searchQuery || selectedType !== 'all'
-                    ? "条件に一致するグループが見つかりませんでした。"
-                    : "グループが登録されていません。"}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              </TableHeader>
+              <TableBody>
+                {filteredGroups.length > 0 ? (
+                  filteredGroups.map((group) => (
+                    <TableRow
+                      key={group.id}
+                      onClick={() => handleRowClick(group.id)} // Add onClick handler
+                      className="cursor-pointer hover:bg-muted/60" // Add cursor and hover styles
+                    >
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {/* Display Color Code */}
+                          {group.colorCode && (
+                            <span
+                              className="h-4 w-4 rounded-full inline-block border border-gray-300"
+                              style={{ backgroundColor: group.colorCode }}
+                              title={`カラーコード: ${group.colorCode}`}
+                            ></span>
+                          )}
+                          {getGroupIcon(group.type)}
+                          <span className="font-medium">{group.name}</span>
+                          {/* Display Abbreviation */}
+                          {group.abbreviation && (
+                            <Badge variant="secondary" title={`略称: ${group.abbreviation}`}>
+                              {group.abbreviation}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {getGroupTypeName(group.type)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{getParentName(group.parentId)}</TableCell>
+                      <TableCell>{group.memberCount}</TableCell>
+                      <TableCell className="max-w-[250px] truncate" title={group.description}>
+                        {group.description || "-"}
+                      </TableCell>
+                      <TableCell>{group.createdAt}</TableCell>
+                      <TableCell className="text-right">
+                        {/* Stop propagation on dropdown trigger */}
+                        <DropdownMenu onOpenChange={(open) => { if (open) { event?.stopPropagation(); } }}>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation(); // Stop propagation here too
+                                setSelectedGroup(group);
+                                setSelectedMembers([]);
+                                setShowAddMembersDialog(true);
+                              }}
+                            >
+                              <UserPlus className="mr-2 h-4 w-4" />
+                              メンバー追加/表示
+                            </DropdownMenuItem>
+                            <DropdownMenuItem disabled onClick={(e) => e.stopPropagation()}> {/* TODO: Implement Edit */}
+                              <Pencil className="mr-2 h-4 w-4" />
+                              編集
+                            </DropdownMenuItem>
+                            <DropdownMenuItem disabled onClick={(e) => e.stopPropagation()}> {/* TODO: Implement Settings View/Edit */}
+                               <Settings className="mr-2 h-4 w-4" />
+                               設定
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50" disabled onClick={(e) => e.stopPropagation()}> {/* TODO: Implement Delete */}
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              削除
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-10 text-gray-500">
+                      {searchQuery || selectedType !== 'all'
+                        ? "条件に一致するグループが見つかりませんでした。"
+                        : "グループが登録されていません。"}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* 新規グループ作成ダイアログ (Enhanced) */}
       <Dialog
@@ -763,9 +762,6 @@ export default function GroupManagement() {
                     return g;
                 });
                 setGroups(updatedGroups);
-                // Also update the exported sampleGroups if needed
-                // const sampleIndex = sampleGroups.findIndex(g => g.id === selectedGroup?.id);
-                // if (sampleIndex > -1) sampleGroups[sampleIndex].memberCount += selectedMembers.length;
                 setShowAddMembersDialog(false);
                 toast({ title: "成功", description: `${selectedMembers.length}名のメンバーが追加されました（モック）。` });
               }}
@@ -837,7 +833,3 @@ export default function GroupManagement() {
     </div>
   );
 }
-
-// Export sample groups and type for potential use elsewhere (like GroupDetail)
-// export { sampleGroups }; // Already exported above
-// export type { Group }; // Already exported above
