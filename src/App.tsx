@@ -48,7 +48,7 @@ function App() {
       {isAuthenticated ? (
         <Route path="/*" element={<Layout />}>
           {/* Default authenticated route */}
-          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route index element={<Navigate to="general-users" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
 
           {/* Company related routes */}
@@ -97,7 +97,7 @@ function App() {
           <Route path="settings" element={<Settings />} />
           
           {/* Fallback for any unmatched authenticated path */}
-          <Route path="*" element={<Navigate to="dashboard" replace />} />
+          <Route path="*" element={<Navigate to="general-users" replace />} />
         </Route>
       ) : (
         // If not authenticated and not on /login, redirect to /login

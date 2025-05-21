@@ -5,13 +5,13 @@ import {
   ChevronDown,
   ChevronRight,
   Menu,
-  LayoutDashboard,
+  // LayoutDashboard, // Removed Dashboard icon
   Users,
   Users2,
   ClipboardList,
   ListChecks,
   Send,
-  List as IconList,
+  // List as IconList, // Removed List icon (used by Survey)
   BarChart2,
   PieChart,
   UserCheck,
@@ -44,7 +44,7 @@ interface NavItem {
 const defaultContractId = mockContracts.length > 0 ? mockContracts[0].id : 'no-contract-available';
 
 const sidebarItems: NavItem[] = [
-  { icon: LayoutDashboard, label: 'ダッシュボード', path: '/dashboard' },
+  // { icon: LayoutDashboard, label: 'ダッシュボード', path: '/dashboard' }, // Removed Dashboard
   { icon: Users, label: '利用者管理', path: '/general-users' },
   { icon: Users2, label: 'グループ管理', path: '/groups' },
   {
@@ -56,15 +56,15 @@ const sidebarItems: NavItem[] = [
       { label: '配信管理', path: '/assessment-deliveries', icon: Send },
     ],
   },
-  {
-    icon: IconList,
-    label: 'サーベイ管理',
-    basePath: '/surveys-root',
-    subItems: [
-      { label: 'サーベイ一覧', path: '/surveys', icon: IconList },
-      { label: '配信管理', path: '/survey-deliveries', icon: Send },
-    ],
-  },
+  // { // Removed Survey Management
+  //   icon: IconList, 
+  //   label: 'サーベイ管理',
+  //   basePath: '/surveys-root',
+  //   subItems: [
+  //     { label: 'サーベイ一覧', path: '/surveys', icon: IconList },
+  //     { label: '配信管理', path: '/survey-deliveries', icon: Send },
+  //   ],
+  // },
   {
     icon: BarChart2,
     label: 'データ分析',
@@ -116,9 +116,9 @@ function Layout() {
     if (path === "/assessments" && (currentPath.startsWith("/assessments/") && !currentPath.includes("/deliveries"))) {
       return true;
     }
-    if (path === "/surveys" && (currentPath.startsWith("/surveys/") && !currentPath.includes("/deliveries"))) {
-      return true;
-    }
+    // if (path === "/surveys" && (currentPath.startsWith("/surveys/") && !currentPath.includes("/deliveries"))) { // Removed survey logic
+    //   return true;
+    // }
     if (path === "/general-users" && currentPath.startsWith("/general-users/")) return true;
     if (path === "/groups" && currentPath.startsWith("/groups/")) return true;
     if (path === "/company-admins" && currentPath.startsWith("/companies/") && currentPath.includes("/admins")) return true;
@@ -152,7 +152,7 @@ function Layout() {
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b">
-        <h1 className="text-xl font-semibold text-gray-900">Edu-Company</h1>
+        <h1 className="text-xl font-semibold text-gray-900">企業管理者</h1>
       </div>
       <nav className="flex-grow p-4 overflow-y-auto">
         {sidebarItems.map((item, index) => (
@@ -226,7 +226,7 @@ function Layout() {
           
           {/* Mobile Header: Fixed position, overlays content on mobile */}
           <header className="md:hidden fixed top-0 left-0 right-0 bg-white shadow h-16 flex items-center justify-between px-4 z-20 print:hidden">
-            <h1 className="text-lg font-semibold text-gray-900">Edu-Company</h1>
+            <h1 className="text-lg font-semibold text-gray-900">企業管理者</h1>
             {showSidebar && ( /* Only show menu toggle if sidebar is active for the page */
               <Sheet
                 open={isMobileSidebarOpen}

@@ -39,7 +39,7 @@ const Sidebar: React.FC = () => {
 
   // Define navigation structure with hierarchy and updated icons
   const navItems: NavItem[] = [
-    { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, label: 'ダッシュボード' },
+    // { id: 'dashboard', path: '/dashboard', icon: LayoutDashboard, label: 'ダッシュボード' }, // Removed dashboard
     { id: 'users', path: '/general-users', icon: Users, label: '利用者管理' },
     { id: 'groups', path: '/groups', icon: Users2, label: 'グループ管理' },
     {
@@ -51,15 +51,15 @@ const Sidebar: React.FC = () => {
         { id: 'assessment-deliveries', path: '/assessment-deliveries', icon: Send, label: '配信管理' },
       ],
     },
-    {
-      id: 'surveys',
-      icon: ClipboardList,
-      label: 'サーベイ管理',
-      children: [
-        { id: 'survey-list', path: '/surveys', icon: List, label: 'サーベイ一覧' },
-        { id: 'survey-deliveries', path: '/survey-deliveries', icon: Send, label: '配信管理' },
-      ],
-    },
+    // { // Removed surveys
+    //   id: 'surveys',
+    //   icon: ClipboardList,
+    //   label: 'サーベイ管理',
+    //   children: [
+    //     { id: 'survey-list', path: '/surveys', icon: List, label: 'サーベイ一覧' },
+    //     { id: 'survey-deliveries', path: '/survey-deliveries', icon: Send, label: '配信管理' },
+    //   ],
+    // },
 		{
       id: 'analytics',
       icon: BarChart2,
