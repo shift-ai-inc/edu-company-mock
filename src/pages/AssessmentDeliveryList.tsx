@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import {
   Table,
   TableBody,
@@ -33,16 +34,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"; // Removed DialogTrigger as it's used within Dropdown
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { AssessmentDelivery, DeliveryStatus, getDeliveryStatusInfo } from '@/types/assessmentDelivery';
 import { getAssessmentDeliveries } from '@/data/mockAssessmentDeliveries';
 import { format, differenceInDays, isBefore, parseISO, addDays } from 'date-fns';
-import { Search, Edit, MailWarning, CalendarClock, MoreHorizontal, Trash2, Send } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Import Card components
+import { Search, Edit, MailWarning, CalendarClock, MoreHorizontal, Trash2, Send, Eye } from 'lucide-react'; // Added Eye icon
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const NEAR_EXPIRY_DAYS = 3; // Highlight if deadline is within 3 days
+const NEAR_EXPIRY_DAYS = 3;
 
 export default function AssessmentDeliveryList() {
   const [deliveries, setDeliveries] = useState<AssessmentDelivery[]>([]);
@@ -54,16 +55,16 @@ export default function AssessmentDeliveryList() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingDelivery, setEditingDelivery] = useState<AssessmentDelivery | null>(null);
   const [editedTargetGroup, setEditedTargetGroup] = useState('');
-  const [editedEndDate, setEditedEndDate] = useState(''); // Store as string YYYY-MM-DD
+  const [editedEndDate, setEditedEndDate] = useState('');
 
   const { toast } = useToast();
+  const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
         const data = await getAssessmentDeliveries();
-        // Simulate real-time status update based on dates (basic)
         const updatedData = data.map(d => {
           const now = new Date();
           let currentStatus = d.status;
@@ -71,12 +72,9 @@ export default function AssessmentDeliveryList() {
             currentStatus = 'in-progress';
           }
           if (d.status !== 'completed' && isBefore(d.deliveryEndDate, now)) {
-             // Don't automatically mark as completed, mark as expired if not completed
              if (d.completedCount < d.totalDelivered) {
                 currentStatus = 'expired';
              } else {
-                 // If somehow all completed exactly on expiry, mark completed
-                 // This logic might need refinement based on real business rules
                  currentStatus = 'completed';
              }
           }
@@ -97,7 +95,6 @@ export default function AssessmentDeliveryList() {
     fetchData();
   }, [toast]);
 
-  // Filtering Logic
   useEffect(() => {
     let result = deliveries.filter(delivery => {
       const matchesSearch =
@@ -131,27 +128,18 @@ export default function AssessmentDeliveryList() {
   const isAllSelected = filteredDeliveries.length > 0 && selectedDeliveries.size === filteredDeliveries.length;
   const isIndeterminate = selectedDeliveries.size > 0 && selectedDeliveries.size < filteredDeliveries.length;
 
-  // --- Mock Actions ---
-
   const handleEditClick = (delivery: AssessmentDelivery) => {
     setEditingDelivery(delivery);
     setEditedTargetGroup(delivery.targetGroup);
-    setEditedEndDate(format(delivery.deliveryEndDate, 'yyyy-MM-dd')); // Format for input type="date"
+    setEditedEndDate(format(delivery.deliveryEndDate, 'yyyy-MM-dd'));
     setShowEditDialog(true);
   };
 
   const handleSaveChanges = () => {
     if (!editingDelivery) return;
-    // ** MOCK SAVE **
-    console.log("Saving changes (mock):", {
-      deliveryId: editingDelivery.deliveryId,
-      newTargetGroup: editedTargetGroup,
-      newEndDate: editedEndDate,
-    });
-    // Update local state for immediate feedback (in real app, refetch or update from response)
     setDeliveries(prev => prev.map(d =>
       d.deliveryId === editingDelivery.deliveryId
-        ? { ...d, targetGroup: editedTargetGroup, deliveryEndDate: parseISO(editedEndDate + 'T00:00:00') } // Ensure it's parsed back to Date
+        ? { ...d, targetGroup: editedTargetGroup, deliveryEndDate: parseISO(editedEndDate + 'T00:00:00') }
         : d
     ));
     toast({
@@ -162,9 +150,7 @@ export default function AssessmentDeliveryList() {
     setEditingDelivery(null);
   };
 
-
   const handleSendReminder = (deliveryId: string, assessmentTitle: string) => {
-    // ** MOCK REMINDER **
     console.log(`Sending reminder (mock) for: ${assessmentTitle} (ID: ${deliveryId})`);
     toast({
       title: "リマインダー送信 (Mock)",
@@ -174,7 +160,6 @@ export default function AssessmentDeliveryList() {
 
    const handleBulkSendReminders = () => {
     if (selectedDeliveries.size === 0) return;
-    // ** MOCK BULK REMINDER **
     const selectedTitles = deliveries
       .filter(d => selectedDeliveries.has(d.deliveryId))
       .map(d => d.assessment.title);
@@ -183,33 +168,27 @@ export default function AssessmentDeliveryList() {
       title: "一括リマインダー送信 (Mock)",
       description: `${selectedDeliveries.size}件の配信にリマインダーを送信しました: ${selectedTitles.join(', ')}`,
     });
-    setSelectedDeliveries(new Set()); // Clear selection
+    setSelectedDeliveries(new Set());
   };
 
   const handleBulkExtendDeadline = () => {
      if (selectedDeliveries.size === 0) return;
-     // ** MOCK BULK EXTEND **
-     // In a real app, you'd likely open another dialog to ask for the new date/extension period
-     const extensionDays = 7; // Example extension
+     const extensionDays = 7;
      console.log(`Extending deadline by ${extensionDays} days (mock) for IDs: ${Array.from(selectedDeliveries).join(', ')}`);
-
      setDeliveries(prev => prev.map(d =>
         selectedDeliveries.has(d.deliveryId)
-        ? { ...d, deliveryEndDate: addDays(d.deliveryEndDate, extensionDays), status: d.status === 'expired' ? 'in-progress' : d.status } // Also potentially update status if expired
+        ? { ...d, deliveryEndDate: addDays(d.deliveryEndDate, extensionDays), status: d.status === 'expired' ? 'in-progress' : d.status }
         : d
      ));
-
      toast({
        title: "一括期限延長 (Mock)",
        description: `${selectedDeliveries.size}件の配信の期限を${extensionDays}日間延長しました。`,
      });
-     setSelectedDeliveries(new Set()); // Clear selection
+     setSelectedDeliveries(new Set());
    };
 
    const handleBulkDelete = () => {
      if (selectedDeliveries.size === 0) return;
-     // ** MOCK BULK DELETE **
-     // Add confirmation dialog in real app
      console.log(`Deleting deliveries (mock) for IDs: ${Array.from(selectedDeliveries).join(', ')}`);
      setDeliveries(prev => prev.filter(d => !selectedDeliveries.has(d.deliveryId)));
      toast({
@@ -217,39 +196,37 @@ export default function AssessmentDeliveryList() {
        description: `${selectedDeliveries.size}件の配信を削除しました。`,
        variant: "destructive"
      });
-     setSelectedDeliveries(new Set()); // Clear selection
+     setSelectedDeliveries(new Set());
    };
 
-
-  // --- Helper Functions ---
   const isNearExpiry = (endDate: Date, status: DeliveryStatus): boolean => {
     if (status !== 'in-progress') return false;
     const daysRemaining = differenceInDays(endDate, new Date());
     return daysRemaining >= 0 && daysRemaining <= NEAR_EXPIRY_DAYS;
   };
 
+  const handleRowClick = (deliveryId: string) => {
+    navigate(`/assessment-deliveries/${deliveryId}`);
+  };
+
   return (
-    // Wrap the entire page content (excluding dialogs which are portal-based) in a Card
-    // Add margin for spacing instead of padding on the outer div
-    <div className="p-4 sm:p-8"> {/* Add padding around the card */}
-      <Card className="bg-card"> {/* Use bg-card for theme-aware background (usually white/dark) */}
+    <div className="p-4 sm:p-8">
+      <Card className="bg-card">
         <CardHeader>
           <CardTitle>
-            <h2 className="text-2xl font-semibold text-gray-900"> {/* Keep h2 for semantics, styled by CardTitle */}
+            <h2 className="text-2xl font-semibold text-gray-900">
               アセスメント配信一覧
             </h2>
           </CardTitle>
-          {/* Optional: Add CardDescription here if needed */}
         </CardHeader>
         <CardContent>
-          {/* Filters and Bulk Actions */}
           <div className="mb-4 flex flex-wrap gap-4 items-center justify-between">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
                 <Input
                   placeholder="検索 (タイトル, 対象, 作成者)..."
-                  className="pl-8 w-[250px] sm:w-[300px]" // Adjust width for responsiveness
+                  className="pl-8 w-[250px] sm:w-[300px]"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -268,8 +245,7 @@ export default function AssessmentDeliveryList() {
               </Select>
             </div>
 
-            {/* Bulk Action Buttons */}
-            <div className="flex flex-wrap gap-2"> {/* Allow wrapping on smaller screens */}
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -300,8 +276,7 @@ export default function AssessmentDeliveryList() {
             </div>
           </div>
 
-          {/* Delivery Table */}
-          <div className="border rounded-md overflow-x-auto"> {/* Added overflow-x-auto for smaller screens */}
+          <div className="border rounded-md overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -343,9 +318,10 @@ export default function AssessmentDeliveryList() {
                       <TableRow
                         key={delivery.deliveryId}
                         data-state={isSelected ? "selected" : ""}
-                        className={nearExpiry ? 'bg-yellow-50 hover:bg-yellow-100' : 'hover:bg-muted/50'} // Adjust hover for near expiry
+                        className={`${nearExpiry ? 'bg-yellow-50 hover:bg-yellow-100' : 'hover:bg-muted/50'} cursor-pointer`}
+                        onClick={() => handleRowClick(delivery.deliveryId)} // Make row clickable
                       >
-                        <TableCell padding="checkbox">
+                        <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}> {/* Stop propagation for checkbox click */}
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={(checked) => handleSelectRow(delivery.deliveryId, !!checked)}
@@ -363,9 +339,8 @@ export default function AssessmentDeliveryList() {
                         </TableCell>
                         <TableCell>
                           {delivery.totalDelivered} / {delivery.completedCount} / {delivery.incompleteCount}
-                          {/* Optional: Add progress bar here */}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right" onClick={(e) => e.stopPropagation()}> {/* Stop propagation for actions cell */}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" className="h-8 w-8 p-0">
@@ -375,23 +350,25 @@ export default function AssessmentDeliveryList() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>アクション</DropdownMenuLabel>
+                               <DropdownMenuItem onClick={() => handleRowClick(delivery.deliveryId)}> {/* Keep consistent with row click */}
+                                <Eye className="mr-2 h-4 w-4" />
+                                詳細を見る
+                              </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleEditClick(delivery)}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 編集
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => handleSendReminder(delivery.deliveryId, delivery.assessment.title)}
-                                disabled={delivery.status === 'completed' || delivery.status === 'scheduled'} // Disable if completed or not started
+                                disabled={delivery.status === 'completed' || delivery.status === 'scheduled'}
                               >
                                 <Send className="mr-2 h-4 w-4" />
                                 リマインダー送信
                               </DropdownMenuItem>
-                              {/* Add other actions like View Results, Archive, etc. later */}
                               <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                    className="text-red-600 focus:text-red-600 focus:bg-red-100" // Enhanced focus style for delete
+                                    className="text-red-600 focus:text-red-600 focus:bg-red-100"
                                     onClick={() => {
-                                        // ** MOCK DELETE ** (Single item) - Add confirmation
                                         console.log(`Deleting single delivery (mock): ${delivery.deliveryId}`);
                                         setDeliveries(prev => prev.filter(d => d.deliveryId !== delivery.deliveryId));
                                         toast({ title: "削除 (Mock)", description: `配信「${delivery.assessment.title}」を削除しました。`, variant: "destructive"});
@@ -413,7 +390,6 @@ export default function AssessmentDeliveryList() {
         </CardContent>
       </Card>
 
-      {/* Edit Dialog remains outside the Card structure as it's likely portal-based */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -444,7 +420,6 @@ export default function AssessmentDeliveryList() {
                 value={editedEndDate}
                 onChange={(e) => setEditedEndDate(e.target.value)}
                 className="col-span-3"
-                // Optional: Add min date validation based on start date or today
               />
             </div>
           </div>
@@ -454,12 +429,6 @@ export default function AssessmentDeliveryList() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Add placeholder for History Search/Analysis later */}
-      {/* <div className="mt-8 p-4 border rounded bg-gray-50">
-        <h3 className="font-medium mb-2">配信履歴の検索・分析 (未実装)</h3>
-        <p className="text-sm text-gray-600">過去の配信履歴を検索したり、分析したりする機能がここに入ります。</p>
-      </div> */}
     </div>
   );
 }
